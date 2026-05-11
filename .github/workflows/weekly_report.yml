@@ -1,0 +1,31 @@
+name: 영업본부 주간보고 자동 취합
+
+on:
+  schedule:
+    # 매주 금요일 오전 9시 (한국시간 = UTC 00:00)
+    - cron: '0 0 * * 5'
+  workflow_dispatch:  # 수동 실행 버튼도 활성화
+
+jobs:
+  weekly-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 패키지 설치
+        run: pip install -r requirements.txt
+
+      - name: 주간보고 취합 실행
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+          REPORT_DB_ID: ${{ secrets.REPORT_DB_ID }}
+          SUMMARY_DB_ID: ${{ secrets.SUMMARY_DB_ID }}
+        run: python weekly_report.py
